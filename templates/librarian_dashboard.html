@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Librarian Dashboard</title>
+    <!-- 
+        If you'd like to use Bootstrap or any other CSS framework, 
+        add the appropriate <link> tags here.
+    -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: inline-block;
+            width: 200px;
+            margin-bottom: 10px;
+        }
+        input, select, button {
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #aaa;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        #addBookResponse, #updateBookResponse, #deleteBookResponse, #orderBooksResponse {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        #addBookResponse { color: green; }
+        #updateBookResponse { color: green; }
+        #deleteBookResponse { color: red; }
+        #orderBooksResponse { color: green; }
+        .button-group button {
+            margin-right: 5px;
+        }
+        #logoutBtn {
+            float: right;
+            background-color: #f44336; /* Red */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        #logoutBtn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Welcome, Librarian!</h1>
+    <button id="logoutBtn" onclick="logout()">Logout</button>
+
+    <!-- 
+        Example logout button if you'd like to implement client-side logout:
+        <button onclick="logout()">Logout</button>
+    -->
+
+    <hr>
+    <h2>Add Book</h2>
+    <form id="addBookForm">
+        <label for="addTitle">Title:</label>
+        <input type="text" id="addTitle" required><br>
+
+        <label for="addAuthor">Author:</label>
+        <input type="text" id="addAuthor" required><br>
+
+        <label for="addGenre">Genre:</label>
+        <input type="text" id="addGenre" required><br>
+
+        <label for="addStock">Stock:</label>
+        <input type="number" id="addStock" required><br>
+
+        <label for="addLocation">Location (optional):</label>
+        <input type="text" id="addLocation"><br><br>
+
+        <button type="submit">Add Book</button>
+    </form>
+    <div id="addBookResponse" style="color: green; margin-top: 10px;"></div>
+
+    <hr>
+    <h2>View Books</h2>
+    <button onclick="loadBooks()">Load Books</button>
+    <br><br>
+
+    <table id="booksTable" border="1">
+        <thead>
+            <tr>
+                <th>Book ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>Stock</th>
+                <th>Location</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Pagination buttons -->
+    <div style="margin-top: 10px;">
+        <button onclick="prevPage()">Prev</button>
+        <span id="currentPage"></span>
+        <button onclick="nextPage()">Next</button>
+    </div>
+
+    <hr>
+    <h2>Search Books</h2>
+    <form id="searchBooksForm">
+        <label for="searchTitle">Title:</label>
+        <input type="text" id="searchTitle"><br>
+
+        <label for="searchAuthor">Author:</label>
+        <input type="text" id="searchAuthor"><br>
+
+        <label for="searchGenre">Genre:</label>
+        <input type="text" id="searchGenre"><br><br>
+
+        <button type="submit">Search</button>
+    </form>
+
+    <table id="searchResultsTable" border="1" style="margin-top: 10px;">
+        <thead>
+            <tr>
+                <th>Book ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>Stock</th>
+                <th>Location</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <hr>
+    <h2>Update Book</h2>
+    <form id="updateBookForm">
+        <label for="updateBookId">Book ID:</label>
+        <input type="number" id="updateBookId" required><br>
+
+        <label for="updateTitle">New Title (optional):</label>
+        <input type="text" id="updateTitle"><br>
+
+        <label for="updateAuthor">New Author (optional):</label>
+        <input type="text" id="updateAuthor"><br>
+
+        <label for="updateGenre">New Genre (optional):</label>
+        <input type="text" id="updateGenre"><br>
+
+        <label for="updateStock">New Stock (optional):</label>
+        <input type="number" id="updateStock"><br>
+
+        <label for="updateLocation">New Location (optional):</label>
+        <input type="text" id="updateLocation"><br><br>
+
+        <button type="submit">Update Book</button>
+    </form>
+    <div id="updateBookResponse" style="color: green; margin-top: 10px;"></div>
+
+    <hr>
+    <h2>Delete Book</h2>
+    <form id="deleteBookForm">
+        <label for="deleteBookId">Book ID:</label>
+        <input type="number" id="deleteBookId" required>
+        <button type="submit">Delete Book</button>
+    </form>
+    <div id="deleteBookResponse" style="color: red; margin-top: 10px;"></div>
+
+    <hr>
+    <h2>Order Books</h2>
+    <form id="orderBooksForm">
+        <label for="orderBookId">Book ID:</label>
+        <input type="number" id="orderBookId" required><br>
+
+        <label for="orderVendorName">Vendor Name:</label>
+        <input type="text" id="orderVendorName" required><br>
+
+        <label for="orderQuantity">Quantity:</label>
+        <input type="number" id="orderQuantity" required><br>
+
+        <label for="orderExpectedDeliveryDate">Expected Delivery Date:</label>
+        <input type="date" id="orderExpectedDeliveryDate" required><br><br>
+
+        <button type="submit">Place Order</button>
+    </form>
+    <div id="orderBooksResponse" style="color: green; margin-top: 10px;"></div>
+
+    <hr>
+    <h2>View Orders</h2>
+    <button onclick="loadOrders()">Load Orders</button>
+
+    <table id="ordersTable" border="1" style="margin-top: 10px;">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Book Title</th>
+                <th>Vendor Name</th>
+                <th>Quantity</th>
+                <th>Order Date</th>
+                <th>Expected Delivery</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- 
+        If you prefer to use jQuery, include it, 
+        or remove this if you're comfortable with plain JS/fetch. 
+    -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+    // Base URL for your Flask application (adjust if needed)
+    const baseUrl = window.location.origin;
+
+    // Global variables for pagination state
+    let currentPage = 1;
+    let totalPages = 1;
+
+    // ----------------------------
+    // 1) Load (Paginated) Books
+    // ----------------------------
+    function loadBooks(page = 1) {
+        fetch(`${baseUrl}/librarian/view_books?page=${page}`, {
+            method: 'GET',
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Clear table
+            const tableBody = document.querySelector("#booksTable tbody");
+            tableBody.innerHTML = "";
+
+            // Populate table rows
+            data.books.forEach(book => {
+                let row = tableBody.insertRow();
+                row.insertCell().innerText = book.book_id;
+                row.insertCell().innerText = book.title;
+                row.insertCell().innerText = book.author;
+                row.insertCell().innerText = book.genre;
+                row.insertCell().innerText = book.stock;
+                row.insertCell().innerText = book.location;
+                row.insertCell().innerText = book.created_at;
+            });
+
+            currentPage = data.current_page;
+            totalPages = data.pages;
+            document.getElementById("currentPage").innerText = `Page ${currentPage} of ${totalPages}`;
+        })
+        .catch(err => console.error(err));
+    }
+
+    function nextPage() {
+        if (currentPage < totalPages) {
+            loadBooks(currentPage + 1);
+        }
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            loadBooks(currentPage - 1);
+        }
+    }
+
+    // ----------------------------
+    // 2) Add Book
+    // ----------------------------
+    document.getElementById('addBookForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const title = document.getElementById('addTitle').value;
+        const author = document.getElementById('addAuthor').value;
+        const genre = document.getElementById('addGenre').value;
+        const stock = document.getElementById('addStock').value;
+        const location = document.getElementById('addLocation').value;
+
+        fetch(`${baseUrl}/librarian/add_book`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, author, genre, stock, location })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("addBookResponse").innerText = data.message;
+            // Reload books to show the newly added one
+            loadBooks();
+        })
+        .catch(err => console.error(err));
+    });
+
+    // ----------------------------
+    // 3) Update Book
+    // ----------------------------
+    document.getElementById('updateBookForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const bookId = document.getElementById('updateBookId').value;
+        const title = document.getElementById('updateTitle').value;
+        const author = document.getElementById('updateAuthor').value;
+        const genre = document.getElementById('updateGenre').value;
+        const stock = document.getElementById('updateStock').value;
+        const location = document.getElementById('updateLocation').value;
+
+        fetch(`${baseUrl}/librarian/update_book/${bookId}`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, author, genre, stock, location })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("updateBookResponse").innerText = data.message;
+            // Reload books to show updated details
+            loadBooks();
+        })
+        .catch(err => console.error(err));
+    });
+
+    // ----------------------------
+    // 4) Delete Book
+    // ----------------------------
+    document.getElementById('deleteBookForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const bookId = document.getElementById('deleteBookId').value;
+
+        fetch(`${baseUrl}/librarian/delete_book/${bookId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("deleteBookResponse").innerText = data.message;
+            // Reload books to remove the deleted entry
+            loadBooks();
+        })
+        .catch(err => console.error(err));
+    });
+
+    // ----------------------------
+    // 5) Search Books
+    // ----------------------------
+    document.getElementById('searchBooksForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const title = document.getElementById('searchTitle').value;
+        const author = document.getElementById('searchAuthor').value;
+        const genre = document.getElementById('searchGenre').value;
+
+        let url = `${baseUrl}/librarian/search_books?`;
+        if (title) url += `title=${encodeURIComponent(title)}&`;
+        if (author) url += `author=${encodeURIComponent(author)}&`;
+        if (genre) url += `genre=${encodeURIComponent(genre)}&`;
+
+        fetch(url, {
+            method: 'GET',
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.querySelector("#searchResultsTable tbody");
+            tableBody.innerHTML = "";
+
+            data.books.forEach(book => {
+                let row = tableBody.insertRow();
+                row.insertCell().innerText = book.book_id;
+                row.insertCell().innerText = book.title;
+                row.insertCell().innerText = book.author;
+                row.insertCell().innerText = book.genre;
+                row.insertCell().innerText = book.stock;
+                row.insertCell().innerText = book.location;
+                row.insertCell().innerText = book.created_at;
+            });
+        })
+        .catch(err => console.error(err));
+    });
+
+    // ----------------------------
+    // 6) Order Books
+    // ----------------------------
+    document.getElementById('orderBooksForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const book_id = document.getElementById('orderBookId').value;
+        const vendor_name = document.getElementById('orderVendorName').value;
+        const quantity = document.getElementById('orderQuantity').value;
+        const expected_delivery_date = document.getElementById('orderExpectedDeliveryDate').value;
+
+        fetch(`${baseUrl}/librarian/order_books`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ book_id, vendor_name, quantity, expected_delivery_date })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("orderBooksResponse").innerText = data.message;
+        })
+        .catch(err => console.error(err));
+    });
+
+    // ----------------------------
+    // 7) View Orders
+    // ----------------------------
+    function loadOrders() {
+        fetch(`${baseUrl}/librarian/view_orders`, {
+            method: 'GET',
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.querySelector("#ordersTable tbody");
+            tableBody.innerHTML = "";
+
+            data.orders.forEach(order => {
+                let row = tableBody.insertRow();
+                row.insertCell().innerText = order.order_id;
+                row.insertCell().innerText = order.book_title;
+                row.insertCell().innerText = order.vendor_name;
+                row.insertCell().innerText = order.quantity;
+                row.insertCell().innerText = order.order_date;
+                row.insertCell().innerText = order.expected_delivery_date;
+                row.insertCell().innerText = order.order_status;
+            });
+        })
+        .catch(err => console.error(err));
+    }
+
+    // Optional: If you wish to automatically load books when the page loads,
+    // you can call loadBooks() below (e.g., loadBooks() ):
+
+    // ----------------------------
+    // Example: Automatic initial load
+    // ----------------------------
+    // window.onload = function() {
+    //     loadBooks();
+    // };
+
+    // ----------------------------
+    // Optional: Logout function
+    // (Only if you have a logout route that clears the cookie)
+    // ----------------------------
+    function logout(){
+        fetch(`/logout`, {
+            method: 'POST',
+            credentials: 'include'
+        })
+        .then(() => {
+            window.location.href = `/login`;
+        })
+        .catch(err => console.error(err));
+    }
+    </script>
+
+</body>
+</html>

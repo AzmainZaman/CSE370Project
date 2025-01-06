@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script>
+        // Check if the user is logged in on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/auth/current_user', { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` } })
+                .then(response => {
+                    if (!response.ok) throw new Error("Not logged in");
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.user) {
+                        document.getElementById('welcome-message').textContent = `Welcome, ${data.user.name} (${data.user.user_type})`;
+                        document.getElementById('user-actions').innerHTML = `
+                            <a href="/${data.user.user_type}/dashboard" class="dashboard-link">Go to Dashboard</a>
+                            <button id="logout-button">Logout</button>
+                        `;
+                        document.getElementById('logout-button').addEventListener('click', () => {
+                            fetch('/auth/logout', { method: 'POST' })
+                                .then(response => response.json())
+                                .then(() => {
+                                    localStorage.removeItem('access_token');
+                                    window.location.reload();
+                                });
+                        });
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('welcome-message').textContent = 'Welcome to the Library Management System';
+                    document.getElementById('user-actions').innerHTML = `
+                        <a href="/auth/login" class="login-link">Login</a>
+                        <a href="/auth/register" class="register-link">Register</a>
+                    `;
+                });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1 id="welcome-message">Welcome to the Library Management System</h1>
+        <nav id="user-actions">
+            <!-- Login/Register links or Dashboard/Logout buttons will be dynamically added here -->
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero">
+            <h2>Your One-Stop Solution for Library Management</h2>
+            <p>Manage books, users, and borrowing activities efficiently.</p>
+            <a href="/auth/login" class="cta-button">Get Started</a>
+        </section>
+
+        <section id="about">
+            <h2>About the System</h2>
+            <p>The Library Management System (LMS) streamlines the management of books, users, and administrative tasks. It is designed for administrators, librarians, and members to ensure a seamless experience.</p>
+        </section>
+
+        <section id="features">
+            <h2>Features</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h3>Admin Panel</h3>
+                    <p>Manage users, configure system settings, and generate reports.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Librarian Tools</h3>
+                    <p>Manage books, track inventory, and handle borrowing requests.</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Member Access</h3>
+                    <p>Search for books, borrow, and check due dates with ease.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <p>Have questions or need help? Get in touch with us.</p>
+            <form action="/contact" method="POST">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" required></textarea>
+
+                <button type="submit">Send Message</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Library Management System. All rights reserved.</p>
+    </footer>
+</body>
+</html>
